@@ -1,0 +1,31 @@
+name: release
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/release.yaml
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: yarn build
+      - run: yarn package
+      - uses: int128/release-typescript-action@2cb8127a6aa537ec6996012f6e603fda3b42056d # v1.21.0
+        with:
+          # TODO: change this on the stable release
+          major-version: 0
