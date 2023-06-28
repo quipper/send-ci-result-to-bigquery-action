@@ -1,10 +1,11 @@
-import { BigQuery } from '@google-cloud/bigquery'
+import { BigQuery, Dataset } from '@google-cloud/bigquery'
 import chunk from 'lodash/chunk'
 import flatten from 'lodash/flatten'
 import { readFileSync, writeFileSync } from 'fs'
 import { XMLParser } from 'fast-xml-parser'
 import * as core from '@actions/core'
 import * as glob from '@actions/glob'
+import { parseGitHubContext } from './github'
 
 type Inputs = {
   GOOGLE_APPLICATION_CREDENTIALS_JSON: string
@@ -16,25 +17,27 @@ type Inputs = {
   TEST_RESULT_XML_GLOB: string
 }
 
-export const run = async (inputs: Inputs): Promise<void> => {
-  const findOrCreateTable = async (
-    tableId: string,
-    schema: Array<{
-      name: string
-      type: 'timestamp' | 'numeric' | 'string' | 'boolean'
-      mode: 'NULLABLE' | 'REQUIRED'
-    }>,
-    timePartitioning: { type: 'DAY'; field: string }
-  ) => {
-    const table = dataset.table(tableId)
+const findOrCreateTable = async (
+  dataset: Dataset,
+  tableId: string,
+  schema: Array<{
+    name: string
+    type: 'timestamp' | 'numeric' | 'string' | 'boolean'
+    mode: 'NULLABLE' | 'REQUIRED'
+  }>,
+  timePartitioning: { type: 'DAY'; field: string }
+) => {
+  const table = dataset.table(tableId)
 
-    const [exists] = await table.exists()
-    if (!exists) {
-      await dataset.createTable(tableId, { schema, timePartitioning })
-    }
-
-    return Promise.resolve(table)
+  const [exists] = await table.exists()
+  if (!exists) {
+    await dataset.createTable(tableId, { schema, timePartitioning })
   }
+
+  return Promise.resolve(table)
+}
+
+export const run = async (inputs: Inputs): Promise<void> => {
   const timestamp = new Date()
 
   const client = new BigQuery()
@@ -47,12 +50,13 @@ export const run = async (inputs: Inputs): Promise<void> => {
 
   const dataset = client.dataset(inputs.BIGQUERY_DATASET_NAME)
 
-  const githubContext = JSON.parse(inputs.GITHUB_CONTEXT_JSON)
+  const githubContext = parseGitHubContext(inputs.GITHUB_CONTEXT_JSON)
   githubContext['token'] = '***'
 
-  const githubMatrixContext = JSON.parse(inputs.GITHUB_MATRIX_CONTEXT_JSON)
+  const githubMatrixContext = inputs.GITHUB_MATRIX_CONTEXT_JSON
 
   const ciContextTable = await findOrCreateTable(
+    dataset,
     inputs.BIGQUERY_CI_CONTEXT_TABLE_NAME,
     [
       {
@@ -80,6 +84,7 @@ export const run = async (inputs: Inputs): Promise<void> => {
   )
 
   const ciResultTable = await findOrCreateTable(
+    dataset,
     inputs.BIGQUERY_CI_RESULT_TABLE_NAME,
     [
       {
@@ -153,7 +158,7 @@ export const run = async (inputs: Inputs): Promise<void> => {
               failed: !!testcase.failure,
               failure_message: testcase.failure?.['#text'],
               github_run_id: githubContext['run_id'],
-              github_matrix_context_json: JSON.stringify(githubMatrixContext),
+              github_matrix_context_json: githubMatrixContext,
             }
           }),
           INSERT_BATCH_SIZE
