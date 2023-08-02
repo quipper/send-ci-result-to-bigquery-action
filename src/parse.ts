@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { XMLParser } from "fast-xml-parser"
-import { readFileSync } from "fs"
-import { chunk, flatten } from "lodash"
+import { XMLParser } from 'fast-xml-parser'
+import assert from 'assert'
 
 const parser = new XMLParser({
   removeNSPrefix: true,
@@ -11,25 +10,49 @@ const parser = new XMLParser({
   parseAttributeValue: true,
 })
 
-export const parseJUnitXMLFile = (filePath: string) => {
-  const xml = parser.parse(readFileSync(filePath, 'utf-8'))
-  chunk(
-    flatten([xml?.testsuite?.testcase ?? []]).map((testcase: any) => {
-      if (!failed && testcase.failure) {
-        failed = true
+export const parseJUnitXML = (s: string): JUnitXML => {
+  const xml = parser.parse(s)
+  assertJUnitXML(xml)
+  return xml
+}
+
+type JUnitXML = {
+  testsuite: {
+    testcase: {
+      '@_classname': string
+      '@_name': string
+      '@_file': string
+      '@_time': number
+      failure?: {
+        '#text': string
       }
-      return {
-        classname: testcase['@_classname'],
-        name: testcase['@_name'],
-        file: testcase['@_file'],
-        time: testcase['@_time'],
-        timestamp,
-        failed: !!testcase.failure,
-        failure_message: testcase.failure?.['#text'],
-        github_run_id: githubContext['run_id'],
-        github_matrix_context_json: githubMatrixContext,
-      }
-    }),
-    INSERT_BATCH_SIZE
-  )
+    }[]
+  }
+}
+
+function assertJUnitXML(x: unknown): asserts x is JUnitXML {
+  assert(typeof x === 'object')
+  assert(x != null)
+
+  assert('testsuite' in x)
+  assert(typeof x.testsuite === 'object')
+  assert(x.testsuite != null)
+
+  assert('testcase' in x.testsuite)
+  assert(Array.isArray(x.testsuite.testcase))
+  for (const testcase of x.testsuite.testcase) {
+    assert(typeof testcase === 'object')
+    assert(testcase != null)
+    assert('@_classname' in testcase)
+    assert('@_name' in testcase)
+    assert('@_file' in testcase)
+    assert('@_time' in testcase)
+
+    if ('failure' in testcase) {
+      assert(typeof testcase.failure === 'object')
+      assert(testcase.failure != null)
+      assert('#text' in testcase.failure)
+      assert(typeof testcase.failure['#text'] === 'string')
+    }
+  }
 }
