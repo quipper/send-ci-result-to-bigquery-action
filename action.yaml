@@ -1,10 +1,29 @@
-name: typescript-action
-description: Template of TypeScript Action
+name: send-ci-result-to-bigquery-action
+description: Send test results of JUnit XML to Google Cloud BigQuery
 
 inputs:
-  name:
-    description: example input
+  test-result-xml-glob:
+    description: Glob pattern of test results
     required: true
+  bigquery-dataset-name:
+    description: Dataset name
+    required: true
+  bigquery-ci-result-table-name:
+    description: Table name of CI result
+    required: true
+  bigquery-ci-context-table-name:
+    description: Table name of CI context
+    required: true
+  github-context-json:
+    description: JSON of github context
+    required: true
+    default: ${{ toJSON(github) }}
+  github-matrix-context-json:
+    description: JSON of matrix context
+    required: false
+  google-application-credentials-json:
+    description: JSON of service account
+    required: false
 
 runs:
   using: 'node16'
