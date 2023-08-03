@@ -1,9 +1,12 @@
 import { BigQuery } from '@google-cloud/bigquery'
-import { readFileSync, writeFileSync } from 'fs'
-import * as core from '@actions/core'
-import * as glob from '@actions/glob'
 import { parseGitHubContext } from './github'
-import { findOrCreateCiContextTable, findOrCreateCiResultTable } from './bq'
+import * as core from '@actions/core'
+import * as bq from './bq'
+import * as fs from 'fs/promises'
+import * as glob from '@actions/glob'
+import * as junit from './junit'
+
+const BIGQUERY_INSERT_BATCH_SIZE = 100
 
 type Inputs = {
   GOOGLE_APPLICATION_CREDENTIALS_JSON: string
@@ -17,59 +20,45 @@ type Inputs = {
 
 export const run = async (inputs: Inputs): Promise<void> => {
   const timestamp = new Date()
-
-  const client = new BigQuery()
-  const GOOGLE_APPLICATION_CREDENTIALS_PATH = '/tmp/google_application_credentials.json'
-  writeFileSync(GOOGLE_APPLICATION_CREDENTIALS_PATH, inputs.GOOGLE_APPLICATION_CREDENTIALS_JSON)
-  process.env.GOOGLE_APPLICATION_CREDENTIALS = GOOGLE_APPLICATION_CREDENTIALS_PATH
-
-  const dataset = client.dataset(inputs.BIGQUERY_DATASET_NAME)
-  const ciContextTable = await findOrCreateCiContextTable(dataset, inputs.BIGQUERY_CI_CONTEXT_TABLE_NAME)
-  const ciResultTable = await findOrCreateCiResultTable(dataset, inputs.BIGQUERY_CI_RESULT_TABLE_NAME)
-
   const githubContext = parseGitHubContext(inputs.GITHUB_CONTEXT_JSON)
-  githubContext['token'] = '***'
+  githubContext.token = '***'
   const githubMatrixContext = inputs.GITHUB_MATRIX_CONTEXT_JSON
 
-  const INSERT_BATCH_SIZE = 100
+  // TODO: support workload identity
+  const client = new BigQuery()
+  const GOOGLE_APPLICATION_CREDENTIALS_PATH = '/tmp/google_application_credentials.json'
+  await fs.writeFile(GOOGLE_APPLICATION_CREDENTIALS_PATH, inputs.GOOGLE_APPLICATION_CREDENTIALS_JSON)
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = GOOGLE_APPLICATION_CREDENTIALS_PATH
 
-  let failed = false
-  const xmlFilePaths = await (await glob.create(inputs.TEST_RESULT_XML_GLOB)).glob()
-  await Promise.all(
-    xmlFilePaths.map((filePath) => {
-      const xml = parser.parse(readFileSync(filePath, 'utf-8'))
-      return Promise.all(
-        chunk(
-          flatten([xml?.testsuite?.testcase ?? []]).map((testcase: any) => {
-            if (!failed && testcase.failure) {
-              failed = true
-            }
-            return {
-              classname: testcase['@_classname'],
-              name: testcase['@_name'],
-              file: testcase['@_file'],
-              time: testcase['@_time'],
-              timestamp,
-              failed: !!testcase.failure,
-              failure_message: testcase.failure?.['#text'],
-              github_run_id: githubContext['run_id'],
-              github_matrix_context_json: githubMatrixContext,
-            }
-          }),
-          INSERT_BATCH_SIZE
-        ).map((rows: unknown[]) => {
-          return ciResultTable.insert(rows)
-        })
-      )
+  core.info(`Creating tables if not exist into dataset ${inputs.BIGQUERY_DATASET_NAME}`)
+  const dataset = client.dataset(inputs.BIGQUERY_DATASET_NAME)
+  const ciContextTable = await bq.findOrCreateCiContextTable(dataset, inputs.BIGQUERY_CI_CONTEXT_TABLE_NAME)
+  const ciResultTable = await bq.findOrCreateCiResultTable(dataset, inputs.BIGQUERY_CI_RESULT_TABLE_NAME)
+
+  let anyFailed = false
+  const xmlGlob = await glob.create(inputs.TEST_RESULT_XML_GLOB)
+  for await (const xmlPath of xmlGlob.globGenerator()) {
+    core.info(`Parsing test result of ${xmlPath}`)
+    const xmlContent = await fs.readFile(xmlPath, 'utf-8')
+    const testResult = junit.parseXML(xmlContent)
+    const ciResultRows = bq.parseTestResult(testResult, {
+      timestamp,
+      github_matrix_context_json: githubMatrixContext,
+      github_run_id: githubContext.run_id,
     })
-  )
+    anyFailed = anyFailed || ciResultRows.some((row) => row.failed)
 
-  await ciContextTable.insert([
+    core.info(`Inserting test result of ${xmlPath}`)
+    await bq.insertRowsParallel(ciResultTable, ciResultRows, BIGQUERY_INSERT_BATCH_SIZE)
+  }
+
+  core.info(`Inserting test context`)
+  await bq.insertRows<bq.CIContextRow>(ciContextTable, [
     {
       timestamp,
-      failed,
       github_context_json: JSON.stringify(githubContext),
-      github_matrix_context_json: JSON.stringify(githubMatrixContext),
+      github_matrix_context_json: githubMatrixContext,
+      failed: anyFailed,
     },
   ])
 }

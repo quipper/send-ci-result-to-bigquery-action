@@ -8,13 +8,13 @@ const parser = new XMLParser({
   parseAttributeValue: true,
 })
 
-export const parseJUnitXML = (s: string): JUnitXML => {
+export const parseXML = (s: string): TestResult => {
   const xml: unknown = parser.parse(s)
-  assertJUnitXML(xml)
+  assertTestResult(xml)
   return xml
 }
 
-type JUnitXML = {
+export type TestResult = {
   testsuite: {
     testcase: {
       '@_classname': string
@@ -28,7 +28,7 @@ type JUnitXML = {
   }
 }
 
-function assertJUnitXML(x: unknown): asserts x is JUnitXML {
+function assertTestResult(x: unknown): asserts x is TestResult {
   assert(typeof x === 'object')
   assert(x != null)
 
@@ -39,11 +39,11 @@ function assertJUnitXML(x: unknown): asserts x is JUnitXML {
   assert('testcase' in x.testsuite)
   assert(Array.isArray(x.testsuite.testcase))
   for (const testcase of x.testsuite.testcase) {
-    assertJUnitXMLTestcase(testcase)
+    assertTestcase(testcase)
   }
 }
 
-function assertJUnitXMLTestcase(x: unknown): asserts x is JUnitXML['testsuite']['testcase'] {
+function assertTestcase(x: unknown): asserts x is TestResult['testsuite']['testcase'] {
   assert(typeof x === 'object')
   assert(x != null)
   assert('@_classname' in x)

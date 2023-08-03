@@ -8,6 +8,7 @@ export const parseGitHubContext = (contextJson: string): GitHubContext => {
 
 type GitHubContext = {
   token: string
+  run_id: string
 }
 
 const isGitHubContext = (x: unknown): x is GitHubContext =>
