@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { XMLParser } from 'fast-xml-parser'
 import assert from 'assert'
 
@@ -11,7 +9,7 @@ const parser = new XMLParser({
 })
 
 export const parseJUnitXML = (s: string): JUnitXML => {
-  const xml = parser.parse(s)
+  const xml: unknown = parser.parse(s)
   assertJUnitXML(xml)
   return xml
 }
@@ -41,18 +39,23 @@ function assertJUnitXML(x: unknown): asserts x is JUnitXML {
   assert('testcase' in x.testsuite)
   assert(Array.isArray(x.testsuite.testcase))
   for (const testcase of x.testsuite.testcase) {
-    assert(typeof testcase === 'object')
-    assert(testcase != null)
-    assert('@_classname' in testcase)
-    assert('@_name' in testcase)
-    assert('@_file' in testcase)
-    assert('@_time' in testcase)
+    assertJUnitXMLTestcase(testcase)
+  }
+}
 
-    if ('failure' in testcase) {
-      assert(typeof testcase.failure === 'object')
-      assert(testcase.failure != null)
-      assert('#text' in testcase.failure)
-      assert(typeof testcase.failure['#text'] === 'string')
-    }
+function assertJUnitXMLTestcase(x: unknown): asserts x is JUnitXML['testsuite']['testcase'] {
+  assert(typeof x === 'object')
+  assert(x != null)
+  assert('@_classname' in x)
+  assert(typeof x['@_classname'] === 'string')
+  assert('@_name' in x)
+  assert('@_file' in x)
+  assert('@_time' in x)
+
+  if ('failure' in x) {
+    assert(typeof x.failure === 'object')
+    assert(x.failure != null)
+    assert('#text' in x.failure)
+    assert(typeof x.failure['#text'] === 'string')
   }
 }
