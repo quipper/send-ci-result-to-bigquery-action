@@ -1,11 +1,9 @@
-import { BigQuery, Dataset } from '@google-cloud/bigquery'
-import chunk from 'lodash/chunk'
-import flatten from 'lodash/flatten'
+import { BigQuery } from '@google-cloud/bigquery'
 import { readFileSync, writeFileSync } from 'fs'
-import { XMLParser } from 'fast-xml-parser'
 import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import { parseGitHubContext } from './github'
+import { findOrCreateCiContextTable, findOrCreateCiResultTable } from './bq'
 
 type Inputs = {
   GOOGLE_APPLICATION_CREDENTIALS_JSON: string
@@ -17,124 +15,21 @@ type Inputs = {
   TEST_RESULT_XML_GLOB: string
 }
 
-const findOrCreateTable = async (
-  dataset: Dataset,
-  tableId: string,
-  schema: Array<{
-    name: string
-    type: 'timestamp' | 'numeric' | 'string' | 'boolean'
-    mode: 'NULLABLE' | 'REQUIRED'
-  }>,
-  timePartitioning: { type: 'DAY'; field: string }
-) => {
-  const table = dataset.table(tableId)
-
-  const [exists] = await table.exists()
-  if (!exists) {
-    await dataset.createTable(tableId, { schema, timePartitioning })
-  }
-
-  return Promise.resolve(table)
-}
-
 export const run = async (inputs: Inputs): Promise<void> => {
   const timestamp = new Date()
 
   const client = new BigQuery()
-
   const GOOGLE_APPLICATION_CREDENTIALS_PATH = '/tmp/google_application_credentials.json'
-
   writeFileSync(GOOGLE_APPLICATION_CREDENTIALS_PATH, inputs.GOOGLE_APPLICATION_CREDENTIALS_JSON)
-
   process.env.GOOGLE_APPLICATION_CREDENTIALS = GOOGLE_APPLICATION_CREDENTIALS_PATH
 
   const dataset = client.dataset(inputs.BIGQUERY_DATASET_NAME)
+  const ciContextTable = await findOrCreateCiContextTable(dataset, inputs.BIGQUERY_CI_CONTEXT_TABLE_NAME)
+  const ciResultTable = await findOrCreateCiResultTable(dataset, inputs.BIGQUERY_CI_RESULT_TABLE_NAME)
 
   const githubContext = parseGitHubContext(inputs.GITHUB_CONTEXT_JSON)
   githubContext['token'] = '***'
-
   const githubMatrixContext = inputs.GITHUB_MATRIX_CONTEXT_JSON
-
-  const ciContextTable = await findOrCreateTable(
-    dataset,
-    inputs.BIGQUERY_CI_CONTEXT_TABLE_NAME,
-    [
-      {
-        name: 'timestamp',
-        type: 'timestamp',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'failed',
-        type: 'boolean',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'github_context_json',
-        type: 'string',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'github_matrix_context_json',
-        type: 'string',
-        mode: 'REQUIRED',
-      },
-    ],
-    { type: 'DAY', field: 'timestamp' }
-  )
-
-  const ciResultTable = await findOrCreateTable(
-    dataset,
-    inputs.BIGQUERY_CI_RESULT_TABLE_NAME,
-    [
-      {
-        name: 'timestamp',
-        type: 'timestamp',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'name',
-        type: 'string',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'classname',
-        type: 'string',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'file',
-        type: 'string',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'time',
-        type: 'numeric',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'failed',
-        type: 'boolean',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'failure_message',
-        type: 'string',
-        mode: 'NULLABLE',
-      },
-      {
-        name: 'github_run_id',
-        type: 'string',
-        mode: 'REQUIRED',
-      },
-      {
-        name: 'github_matrix_context_json',
-        type: 'string',
-        mode: 'REQUIRED',
-      },
-    ],
-    { type: 'DAY', field: 'timestamp' }
-  )
 
   const INSERT_BATCH_SIZE = 100
 
@@ -178,10 +73,3 @@ export const run = async (inputs: Inputs): Promise<void> => {
     },
   ])
 }
-
-const parser = new XMLParser({
-  removeNSPrefix: true,
-  ignoreAttributes: false,
-  parseTagValue: true,
-  parseAttributeValue: true,
-})
