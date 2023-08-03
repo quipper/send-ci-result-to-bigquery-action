@@ -12,4 +12,4 @@ type GitHubContext = {
 }
 
 const isGitHubContext = (x: unknown): x is GitHubContext =>
-  typeof x === 'object' && x != null && ('token' in x) && typeof x['token'] === 'string'
+  typeof x === 'object' && x != null && 'token' in x && typeof x['token'] === 'string'
