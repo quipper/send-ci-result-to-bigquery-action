@@ -29,9 +29,16 @@ jobs:
           node-version: 16
           cache: yarn
       - run: yarn
-      - run: yarn test
+      - run: yarn test --reporters=default --reporters=jest-junit
       - run: yarn build
       - run: yarn package
+
+      - uses: ./
+        with:
+          test-result-xml-glob: junit.xml
+          bigquery-dataset-name: ci_result
+          bigquery-ci-result-table-name: ci_result
+          bigquery-ci-context-table-name: ci_context
 
   generate:
     runs-on: ubuntu-latest
