@@ -9,36 +9,36 @@ import * as junit from './junit'
 const BIGQUERY_INSERT_BATCH_SIZE = 100
 
 type Inputs = {
-  GOOGLE_APPLICATION_CREDENTIALS_JSON: string
-  GITHUB_CONTEXT_JSON: string
-  GITHUB_MATRIX_CONTEXT_JSON: string
-  BIGQUERY_DATASET_NAME: string
-  BIGQUERY_CI_RESULT_TABLE_NAME: string
-  BIGQUERY_CI_CONTEXT_TABLE_NAME: string
-  TEST_RESULT_XML_GLOB: string
+  testResultXMLGlob: string
+  bigqueryDatasetName: string
+  bigqueryCIResultTableName: string
+  bigqueryCIContextTableName: string
+  githubContextJSON: string
+  githubMatrixContextJSON: string
+  googleApplicationCredentialsJSON: string
 }
 
 export const run = async (inputs: Inputs): Promise<void> => {
   const timestamp = new Date()
-  const githubContext = parseGitHubContext(inputs.GITHUB_CONTEXT_JSON)
+  const githubContext = parseGitHubContext(inputs.githubContextJSON)
   githubContext.token = '***'
-  const githubMatrixContext = inputs.GITHUB_MATRIX_CONTEXT_JSON
+  const githubMatrixContext = inputs.githubMatrixContextJSON
 
   const client = new BigQuery()
-  if (inputs.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  if (inputs.googleApplicationCredentialsJSON) {
     // TODO: should use https://github.com/google-github-actions/auth
     const GOOGLE_APPLICATION_CREDENTIALS_PATH = '/tmp/google_application_credentials.json'
-    await fs.writeFile(GOOGLE_APPLICATION_CREDENTIALS_PATH, inputs.GOOGLE_APPLICATION_CREDENTIALS_JSON)
+    await fs.writeFile(GOOGLE_APPLICATION_CREDENTIALS_PATH, inputs.googleApplicationCredentialsJSON)
     process.env.GOOGLE_APPLICATION_CREDENTIALS = GOOGLE_APPLICATION_CREDENTIALS_PATH
   }
 
-  core.info(`Creating tables if not exist into dataset ${inputs.BIGQUERY_DATASET_NAME}`)
-  const dataset = client.dataset(inputs.BIGQUERY_DATASET_NAME)
-  const ciContextTable = await bq.findOrCreateCiContextTable(dataset, inputs.BIGQUERY_CI_CONTEXT_TABLE_NAME)
-  const ciResultTable = await bq.findOrCreateCiResultTable(dataset, inputs.BIGQUERY_CI_RESULT_TABLE_NAME)
+  core.info(`Creating tables if not exist into dataset ${inputs.bigqueryDatasetName}`)
+  const dataset = client.dataset(inputs.bigqueryDatasetName)
+  const ciContextTable = await bq.findOrCreateCiContextTable(dataset, inputs.bigqueryCIContextTableName)
+  const ciResultTable = await bq.findOrCreateCiResultTable(dataset, inputs.bigqueryCIResultTableName)
 
   let anyFailed = false
-  const xmlGlob = await glob.create(inputs.TEST_RESULT_XML_GLOB)
+  const xmlGlob = await glob.create(inputs.testResultXMLGlob)
   for await (const xmlPath of xmlGlob.globGenerator()) {
     core.info(`Parsing test result of ${xmlPath}`)
     const xmlContent = await fs.readFile(xmlPath, 'utf-8')
@@ -52,6 +52,7 @@ export const run = async (inputs: Inputs): Promise<void> => {
 
     core.info(`Inserting test result of ${xmlPath}`)
     await bq.insertRowsParallel(ciResultTable, ciResultRows, BIGQUERY_INSERT_BATCH_SIZE)
+    core.info(`Inserted ${ciResultRows.length} rows`)
   }
 
   core.info(`Inserting test context`)
