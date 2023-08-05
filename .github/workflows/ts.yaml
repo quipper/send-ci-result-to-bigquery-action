@@ -43,7 +43,7 @@ jobs:
       - uses: ./
         with:
           test-result-xml-glob: junit.xml
-          bigquery-dataset-name: send-ci-result-to-bigquery-action
+          bigquery-dataset-name: send_ci_result_to_bigquery_action
           bigquery-ci-result-table-name: ci_result
           bigquery-ci-context-table-name: ci_context
 
