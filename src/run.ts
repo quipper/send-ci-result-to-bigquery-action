@@ -24,11 +24,13 @@ export const run = async (inputs: Inputs): Promise<void> => {
   githubContext.token = '***'
   const githubMatrixContext = inputs.GITHUB_MATRIX_CONTEXT_JSON
 
-  // TODO: support workload identity
   const client = new BigQuery()
-  const GOOGLE_APPLICATION_CREDENTIALS_PATH = '/tmp/google_application_credentials.json'
-  await fs.writeFile(GOOGLE_APPLICATION_CREDENTIALS_PATH, inputs.GOOGLE_APPLICATION_CREDENTIALS_JSON)
-  process.env.GOOGLE_APPLICATION_CREDENTIALS = GOOGLE_APPLICATION_CREDENTIALS_PATH
+  if (inputs.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    // TODO: should use https://github.com/google-github-actions/auth
+    const GOOGLE_APPLICATION_CREDENTIALS_PATH = '/tmp/google_application_credentials.json'
+    await fs.writeFile(GOOGLE_APPLICATION_CREDENTIALS_PATH, inputs.GOOGLE_APPLICATION_CREDENTIALS_JSON)
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = GOOGLE_APPLICATION_CREDENTIALS_PATH
+  }
 
   core.info(`Creating tables if not exist into dataset ${inputs.BIGQUERY_DATASET_NAME}`)
   const dataset = client.dataset(inputs.BIGQUERY_DATASET_NAME)
