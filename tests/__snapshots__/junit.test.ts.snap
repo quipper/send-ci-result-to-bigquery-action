@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`jest.xml flattenTestCases 1`] = `
+[
+  {
+    "@_classname": "parse junit XML",
+    "@_name": "parse junit XML",
+    "@_time": 0.005,
+  },
+]
+`;
+
+exports[`jest.xml parseXML 1`] = `
+{
+  "?xml": {
+    "@_encoding": "UTF-8",
+    "@_version": 1,
+  },
+  "testsuites": {
+    "@_errors": 0,
+    "@_failures": 0,
+    "@_name": "jest tests",
+    "@_tests": 1,
+    "@_time": 0.865,
+    "testsuite": {
+      "@_errors": 0,
+      "@_failures": 0,
+      "@_name": "undefined",
+      "@_skipped": 0,
+      "@_tests": 1,
+      "@_time": 0.807,
+      "@_timestamp": "2023-08-04T12:22:11",
+      "testcase": {
+        "@_classname": "parse junit XML",
+        "@_name": "parse junit XML",
+        "@_time": 0.005,
+      },
+    },
+  },
+}
+`;
+
+exports[`rspec.xml flattenTestCases 1`] = `
+[
+  {
+    "@_classname": "spec.features.foo_spec",
+    "@_file": "./spec/features/foo_spec.rb",
+    "@_name": "foo",
+    "@_time": 37.832874,
+  },
+  {
+    "@_classname": "spec.features.bar_spec",
+    "@_file": "./spec/features/bar_spec.rb",
+    "@_name": "bar",
+    "@_time": 32.502537,
+  },
+  {
+    "@_classname": "spec.features.baz_spec",
+    "@_file": "./spec/features/baz_spec.rb",
+    "@_name": "baz",
+    "@_time": 32.297284,
+    "failure": {
+      "#text": "expected baz",
+      "@_message": "example",
+      "@_type": "spec.features.baz_spec",
+    },
+  },
+]
+`;
+
+exports[`rspec.xml parseXML 1`] = `
+{
+  "?xml": {
+    "@_encoding": "UTF-8",
+    "@_version": 1,
+  },
+  "testsuite": {
+    "@_errors": 0,
+    "@_failures": 0,
+    "@_hostname": "runner",
+    "@_name": "rspec",
+    "@_skipped": 0,
+    "@_tests": 3,
+    "@_time": 494.14825,
+    "@_timestamp": "2023-08-02T05:15:08+00:00",
+    "properties": {
+      "property": {
+        "@_name": "seed",
+        "@_value": 38266,
+      },
+    },
+    "testcase": [
+      {
+        "@_classname": "spec.features.foo_spec",
+        "@_file": "./spec/features/foo_spec.rb",
+        "@_name": "foo",
+        "@_time": 37.832874,
+      },
+      {
+        "@_classname": "spec.features.bar_spec",
+        "@_file": "./spec/features/bar_spec.rb",
+        "@_name": "bar",
+        "@_time": 32.502537,
+      },
+      {
+        "@_classname": "spec.features.baz_spec",
+        "@_file": "./spec/features/baz_spec.rb",
+        "@_name": "baz",
+        "@_time": 32.297284,
+        "failure": {
+          "#text": "expected baz",
+          "@_message": "example",
+          "@_type": "spec.features.baz_spec",
+        },
+      },
+    ],
+  },
+}
+`;
