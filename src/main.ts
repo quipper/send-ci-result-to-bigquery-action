@@ -6,9 +6,7 @@ const main = async (): Promise<void> => {
   const GITHUB_CONTEXT_JSON = core.getInput('github-context-json', {
     required: true,
   })
-  const GITHUB_MATRIX_CONTEXT_JSON = core.getInput('github-matrix-context-json', {
-    required: true,
-  })
+  const GITHUB_MATRIX_CONTEXT_JSON = core.getInput('github-matrix-context-json')
   const BIGQUERY_DATASET_NAME = core.getInput('bigquery-dataset-name', {
     required: true,
   })
