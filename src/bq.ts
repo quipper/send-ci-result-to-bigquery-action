@@ -1,5 +1,5 @@
 import * as bigquery from '@google-cloud/bigquery'
-import { TestResult } from './junit'
+import { TestResult, flattenTestCases } from './junit'
 
 type CIResultContext = {
   timestamp: Date
@@ -8,10 +8,10 @@ type CIResultContext = {
 }
 
 export const parseTestResult = (xml: TestResult, context: CIResultContext) =>
-  xml.testsuite.testcase.map<CIResultRow>((testcase) => ({
+  flattenTestCases(xml).map<CIResultRow>((testcase) => ({
     name: testcase['@_name'],
     classname: testcase['@_classname'],
-    file: testcase['@_file'],
+    file: testcase['@_file'] ?? '',
     time: testcase['@_time'],
     failed: testcase.failure !== undefined,
     failure_message: testcase.failure?.['#text'],
