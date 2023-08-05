@@ -22,20 +22,24 @@ exports[`jest.xml parseXML 1`] = `
     "@_name": "jest tests",
     "@_tests": 1,
     "@_time": 0.865,
-    "testsuite": {
-      "@_errors": 0,
-      "@_failures": 0,
-      "@_name": "undefined",
-      "@_skipped": 0,
-      "@_tests": 1,
-      "@_time": 0.807,
-      "@_timestamp": "2023-08-04T12:22:11",
-      "testcase": {
-        "@_classname": "parse junit XML",
-        "@_name": "parse junit XML",
-        "@_time": 0.005,
+    "testsuite": [
+      {
+        "@_errors": 0,
+        "@_failures": 0,
+        "@_name": "undefined",
+        "@_skipped": 0,
+        "@_tests": 1,
+        "@_time": 0.807,
+        "@_timestamp": "2023-08-04T12:22:11",
+        "testcase": [
+          {
+            "@_classname": "parse junit XML",
+            "@_name": "parse junit XML",
+            "@_time": 0.005,
+          },
+        ],
       },
-    },
+    ],
   },
 }
 `;

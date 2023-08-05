@@ -6,6 +6,14 @@ const parser = new XMLParser({
   ignoreAttributes: false,
   parseTagValue: true,
   parseAttributeValue: true,
+  isArray: (_: string, jPath: string) =>
+    [
+      // <testsuites> has 0 or more <testsuite>
+      'testsuites.testsuite',
+      // <testsuite> has 0 or more <testcase>
+      'testsuites.testsuite.testcase',
+      'testsuite.testcase',
+    ].includes(jPath),
 })
 
 export const parseXML = (s: string): TestResult => {
@@ -16,10 +24,10 @@ export const parseXML = (s: string): TestResult => {
 
 export const flattenTestCases = (xml: TestResult): TestCase[] => {
   if (xml.testsuites) {
-    return [xml.testsuites.testsuite].flat().flatMap((testSuite) => testSuite.testcase)
+    return xml.testsuites.testsuite.flatMap((testSuite) => testSuite.testcase)
   }
   if (xml.testsuite) {
-    return [xml.testsuite.testcase].flat()
+    return xml.testsuite.testcase
   }
   return []
 }
@@ -42,37 +50,31 @@ function assertTestResult(x: unknown): asserts x is TestResult {
 }
 
 type TestSuites = {
-  testsuite: TestSuite | TestSuite[]
+  testsuite: TestSuite[]
 }
 
 function assertTestSuites(x: unknown): asserts x is TestSuites {
   assert(typeof x === 'object')
   assert(x != null)
   assert('testsuite' in x)
-  if (Array.isArray(x.testsuite)) {
-    for (const testsuite of x.testsuite) {
-      assertTestSuite(testsuite)
-    }
-    return
+  assert(Array.isArray(x.testsuite))
+  for (const testsuite of x.testsuite) {
+    assertTestSuite(testsuite)
   }
-  assertTestSuite(x.testsuite)
 }
 
 type TestSuite = {
-  testcase: TestCase | TestCase[]
+  testcase: TestCase[]
 }
 
 function assertTestSuite(x: unknown): asserts x is TestSuite {
   assert(typeof x === 'object')
   assert(x != null)
   assert('testcase' in x)
-  if (Array.isArray(x.testcase)) {
-    for (const testcase of x.testcase) {
-      assertTestCase(testcase)
-    }
-    return
+  assert(Array.isArray(x.testcase))
+  for (const testcase of x.testcase) {
+    assertTestCase(testcase)
   }
-  assertTestCase(x.testcase)
 }
 
 type TestCase = {
