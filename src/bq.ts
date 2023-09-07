@@ -1,4 +1,5 @@
 import * as bigquery from '@google-cloud/bigquery'
+import * as core from '@actions/core'
 import { TestCase } from './junit'
 
 type CIResultContext = {
@@ -124,13 +125,23 @@ export const insertRowsParallel = async <T>(table: bigquery.Table, rows: T[], ba
   return await Promise.all(promises)
 }
 
-export const insertRows = async <T>(table: bigquery.Table, rows: T[]) => table.insert(rows)
+export const insertRows = async <T>(table: bigquery.Table, rows: T[]) => {
+  if (core.isDebug()) {
+    core.startGroup(`Insert into table ${table.projectId}/${table.id}`)
+    core.debug(JSON.stringify(rows, undefined, 2))
+    core.endGroup()
+  }
+  await table.insert(rows)
+}
 
 const findOrCreateTable = async (dataset: bigquery.Dataset, tableId: string, options: bigquery.TableMetadata) => {
   const table = dataset.table(tableId)
   const [exists] = await table.exists()
   if (!exists) {
+    core.startGroup(`Create table ${tableId}`)
+    core.info(JSON.stringify(options, undefined, 2))
     await dataset.createTable(tableId, options)
+    core.endGroup()
   }
   return table
 }
