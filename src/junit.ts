@@ -77,7 +77,7 @@ function assertTestSuite(x: unknown): asserts x is TestSuite {
   }
 }
 
-type TestCase = {
+export type TestCase = {
   '@_classname': string
   '@_name': string
   '@_time': number
@@ -93,7 +93,9 @@ export function assertTestCase(x: unknown): asserts x is TestCase {
   assert('@_classname' in x)
   assert(typeof x['@_classname'] === 'string')
   assert('@_name' in x)
+  assert(typeof x['@_name'] === 'string')
   assert('@_time' in x)
+  assert(typeof x['@_time'] === 'number')
 
   if ('@_file' in x) {
     assert(typeof x['@_file'] === 'string')

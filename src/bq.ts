@@ -1,5 +1,5 @@
 import * as bigquery from '@google-cloud/bigquery'
-import { TestResult, flattenTestCases } from './junit'
+import { TestCase } from './junit'
 
 type CIResultContext = {
   timestamp: Date
@@ -7,15 +7,15 @@ type CIResultContext = {
   github_matrix_context_json: string
 }
 
-export const parseTestResult = (xml: TestResult, context: CIResultContext) =>
-  flattenTestCases(xml).map<CIResultRow>((testcase) => ({
-    name: testcase['@_name'],
-    classname: testcase['@_classname'],
-    file: testcase['@_file'] ?? '',
-    time: testcase['@_time'],
-    failed: testcase.failure !== undefined,
-    failure_message: testcase.failure?.['#text'],
+export const parseTestResult = (testCases: TestCase[], context: CIResultContext) =>
+  testCases.map<CIResultRow>((testCase) => ({
     timestamp: context.timestamp,
+    name: testCase['@_name'],
+    classname: testCase['@_classname'],
+    file: testCase['@_file'] ?? '',
+    time: testCase['@_time'],
+    failed: testCase.failure !== undefined,
+    failure_message: testCase.failure?.['#text'],
     github_run_id: context.github_run_id,
     github_matrix_context_json: context.github_matrix_context_json,
   }))

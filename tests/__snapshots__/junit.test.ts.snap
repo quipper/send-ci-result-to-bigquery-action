@@ -121,3 +121,81 @@ exports[`rspec.xml parseXML 1`] = `
   },
 }
 `;
+
+exports[`ruby-minitest.xml flattenTestCases 1`] = `
+[
+  {
+    "@_assertions": 1,
+    "@_classname": "ExampleTest",
+    "@_file": "test/example_test.rb",
+    "@_lineno": 18,
+    "@_name": "test_should_foo",
+    "@_time": 0.003570767000383057,
+  },
+  {
+    "@_assertions": 0,
+    "@_classname": "ExampleTest",
+    "@_file": "test/example_test.rb",
+    "@_lineno": 8,
+    "@_name": "test_should_bar",
+    "@_time": 0.004014151999854221,
+  },
+  {
+    "@_assertions": 4,
+    "@_classname": "ExampleTest",
+    "@_file": "test/example_test.rb",
+    "@_lineno": 28,
+    "@_name": "test_should_not_baz",
+    "@_time": 0.009853191999809496,
+  },
+]
+`;
+
+exports[`ruby-minitest.xml parseXML 1`] = `
+{
+  "?xml": {
+    "@_encoding": "UTF-8",
+    "@_version": 1,
+  },
+  "testsuites": {
+    "testsuite": [
+      {
+        "@_assertions": 5,
+        "@_errors": 0,
+        "@_failures": 0,
+        "@_filepath": "test/example_test.rb",
+        "@_name": "ExampleTest",
+        "@_skipped": 0,
+        "@_tests": 3,
+        "@_time": 0.017438111000046774,
+        "testcase": [
+          {
+            "@_assertions": 1,
+            "@_classname": "ExampleTest",
+            "@_file": "test/example_test.rb",
+            "@_lineno": 18,
+            "@_name": "test_should_foo",
+            "@_time": 0.003570767000383057,
+          },
+          {
+            "@_assertions": 0,
+            "@_classname": "ExampleTest",
+            "@_file": "test/example_test.rb",
+            "@_lineno": 8,
+            "@_name": "test_should_bar",
+            "@_time": 0.004014151999854221,
+          },
+          {
+            "@_assertions": 4,
+            "@_classname": "ExampleTest",
+            "@_file": "test/example_test.rb",
+            "@_lineno": 28,
+            "@_name": "test_should_not_baz",
+            "@_time": 0.009853191999809496,
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
