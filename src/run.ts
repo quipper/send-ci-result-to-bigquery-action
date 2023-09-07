@@ -43,16 +43,18 @@ export const run = async (inputs: Inputs): Promise<void> => {
     core.info(`Parsing test result of ${xmlPath}`)
     const xmlContent = await fs.readFile(xmlPath, 'utf-8')
     const testResult = junit.parseXML(xmlContent)
-    const ciResultRows = bq.parseTestResult(testResult, {
+    const testCases = junit.flattenTestCases(testResult)
+    const ciResultRows = bq.parseTestResult(testCases, {
       timestamp,
       github_matrix_context_json: githubMatrixContext,
       github_run_id: githubContext.run_id,
     })
-    anyFailed = anyFailed || ciResultRows.some((row) => row.failed)
 
     core.info(`Inserting test result of ${xmlPath}`)
     await bq.insertRowsParallel(ciResultTable, ciResultRows, BIGQUERY_INSERT_BATCH_SIZE)
     core.info(`Inserted ${ciResultRows.length} rows`)
+
+    anyFailed = anyFailed || ciResultRows.some((row) => row.failed)
   }
 
   core.info(`Inserting test context`)

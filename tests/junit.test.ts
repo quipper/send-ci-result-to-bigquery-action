@@ -39,3 +39,22 @@ describe('jest.xml', () => {
     expect(testCases).toMatchSnapshot()
   })
 })
+
+describe('ruby-minitest.xml', () => {
+  const fixturePath = join(__dirname, 'ruby-minitest.xml')
+
+  test('parseXML', async () => {
+    const xml = parseXML(await fs.readFile(fixturePath, 'utf-8'))
+    expect(xml).toBeTruthy()
+    expect(xml).toMatchSnapshot()
+  })
+
+  test('flattenTestCases', async () => {
+    const xml = parseXML(await fs.readFile(fixturePath, 'utf-8'))
+    const testCases = flattenTestCases(xml)
+    for (const testCase of testCases) {
+      assertTestCase(testCase)
+    }
+    expect(testCases).toMatchSnapshot()
+  })
+})
