@@ -14,7 +14,9 @@ export const parseTestResult = (testCases: TestCase[], context: CIResultContext)
     name: testCase['@_name'],
     classname: testCase['@_classname'],
     file: testCase['@_file'] ?? '',
-    time: testCase['@_time'],
+    // To avoid "Invalid NUMERIC value" error, send as a string
+    // https://github.com/googleapis/nodejs-bigquery/issues/1221#issuecomment-1607942846
+    time: String(testCase['@_time']),
     failed: testCase.failure !== undefined,
     failure_message: testCase.failure?.['#text'],
     github_run_id: context.github_run_id,
@@ -25,7 +27,7 @@ export type CIResultRow = CIResultContext & {
   name: string
   classname: string
   file: string
-  time: number
+  time: string
   failed: boolean
   failure_message: string | undefined
 }
