@@ -131,7 +131,17 @@ export const insertRows = async <T>(table: bigquery.Table, rows: T[]) => {
     core.debug(JSON.stringify(rows, undefined, 2))
     core.endGroup()
   }
-  await table.insert(rows)
+  try {
+    await table.insert(rows)
+  } catch (error) {
+    // https://github.com/googleapis/nodejs-bigquery/issues/612
+    if (error instanceof Error && error.name === 'PartialFailureError') {
+      core.startGroup(`PartialFailureError`)
+      core.info(JSON.stringify(error, undefined, 2))
+      core.endGroup()
+    }
+    throw error
+  }
 }
 
 const findOrCreateTable = async (dataset: bigquery.Dataset, tableId: string, options: bigquery.TableMetadata) => {
