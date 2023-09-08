@@ -1,5 +1,6 @@
 import * as bigquery from '@google-cloud/bigquery'
-import { TestResult, flattenTestCases } from './junit'
+import * as core from '@actions/core'
+import { TestCase } from './junit'
 
 type CIResultContext = {
   timestamp: Date
@@ -7,15 +8,17 @@ type CIResultContext = {
   github_matrix_context_json: string
 }
 
-export const parseTestResult = (xml: TestResult, context: CIResultContext) =>
-  flattenTestCases(xml).map<CIResultRow>((testcase) => ({
-    name: testcase['@_name'],
-    classname: testcase['@_classname'],
-    file: testcase['@_file'] ?? '',
-    time: testcase['@_time'],
-    failed: testcase.failure !== undefined,
-    failure_message: testcase.failure?.['#text'],
+export const parseTestResult = (testCases: TestCase[], context: CIResultContext) =>
+  testCases.map<CIResultRow>((testCase) => ({
     timestamp: context.timestamp,
+    name: testCase['@_name'],
+    classname: testCase['@_classname'],
+    file: testCase['@_file'] ?? '',
+    // To avoid "Invalid NUMERIC value" error, send as a string
+    // https://github.com/googleapis/nodejs-bigquery/issues/1221#issuecomment-1607942846
+    time: String(testCase['@_time']),
+    failed: testCase.failure !== undefined,
+    failure_message: testCase.failure?.['#text'],
     github_run_id: context.github_run_id,
     github_matrix_context_json: context.github_matrix_context_json,
   }))
@@ -24,7 +27,7 @@ export type CIResultRow = CIResultContext & {
   name: string
   classname: string
   file: string
-  time: number
+  time: string
   failed: boolean
   failure_message: string | undefined
 }
@@ -124,13 +127,33 @@ export const insertRowsParallel = async <T>(table: bigquery.Table, rows: T[], ba
   return await Promise.all(promises)
 }
 
-export const insertRows = async <T>(table: bigquery.Table, rows: T[]) => table.insert(rows)
+export const insertRows = async <T>(table: bigquery.Table, rows: T[]) => {
+  if (core.isDebug()) {
+    core.startGroup(`Insert into table ${table.projectId}/${table.id}`)
+    core.debug(JSON.stringify(rows, undefined, 2))
+    core.endGroup()
+  }
+  try {
+    await table.insert(rows)
+  } catch (error) {
+    // https://github.com/googleapis/nodejs-bigquery/issues/612
+    if (error instanceof Error && error.name === 'PartialFailureError') {
+      core.startGroup(`PartialFailureError`)
+      core.info(JSON.stringify(error, undefined, 2))
+      core.endGroup()
+    }
+    throw error
+  }
+}
 
 const findOrCreateTable = async (dataset: bigquery.Dataset, tableId: string, options: bigquery.TableMetadata) => {
   const table = dataset.table(tableId)
   const [exists] = await table.exists()
   if (!exists) {
+    core.startGroup(`Create table ${tableId}`)
+    core.info(JSON.stringify(options, undefined, 2))
     await dataset.createTable(tableId, options)
+    core.endGroup()
   }
   return table
 }

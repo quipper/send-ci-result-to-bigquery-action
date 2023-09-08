@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="ExampleTest" filepath="test/example_test.rb" skipped="0" failures="0" errors="0" tests="3" assertions="5" time="0.017438111000046774">
+    <testcase name="test_should_foo" lineno="18" classname="ExampleTest" assertions="1" time="0.003570767000383057" file="test/example_test.rb">
+    </testcase>
+    <testcase name="test_should_bar" lineno="8" classname="ExampleTest" assertions="0" time="0.004014151999854221" file="test/example_test.rb">
+    </testcase>
+    <testcase name="test_should_not_baz" lineno="28" classname="ExampleTest" assertions="4" time="0.009853191999809496" file="test/example_test.rb">
+    </testcase>
+  </testsuite>
+</testsuites>
