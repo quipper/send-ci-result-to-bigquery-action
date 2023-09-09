@@ -22,6 +22,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
       - uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
@@ -29,9 +32,20 @@ jobs:
           node-version: 16
           cache: yarn
       - run: yarn
-      - run: yarn test
+      - run: yarn test --reporters=default --reporters=jest-junit
       - run: yarn build
       - run: yarn package
+
+      - uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+      - uses: ./
+        with:
+          test-result-xml-glob: junit.xml
+          bigquery-dataset-name: send_ci_result_to_bigquery_action
+          bigquery-ci-result-table-name: ci_result
+          bigquery-ci-context-table-name: ci_context
 
   generate:
     runs-on: ubuntu-latest
