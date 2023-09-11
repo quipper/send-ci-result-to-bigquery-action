@@ -14,20 +14,21 @@ export const parseTestResult = (testCases: TestCase[], context: CIResultContext)
     name: testCase['@_name'],
     classname: testCase['@_classname'],
     file: testCase['@_file'] ?? '',
-    // To avoid "Invalid NUMERIC value" error, send as a string
-    // https://github.com/googleapis/nodejs-bigquery/issues/1221#issuecomment-1607942846
-    time: String(testCase['@_time']),
+    time: truncateTimeToMillis(testCase['@_time']),
     failed: testCase.failure !== undefined,
     failure_message: testCase.failure?.['#text'],
     github_run_id: context.github_run_id,
     github_matrix_context_json: context.github_matrix_context_json,
   }))
 
+// To avoid "Invalid NUMERIC value" error, truncate the precision of float
+const truncateTimeToMillis = (x: number) => Math.ceil(x * 1000) / 1000
+
 export type CIResultRow = CIResultContext & {
   name: string
   classname: string
   file: string
-  time: string
+  time: number
   failed: boolean
   failure_message: string | undefined
 }
