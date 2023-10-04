@@ -40,7 +40,6 @@ describe('empty-testsuites.xml', () => {
   })
 })
 
-
 describe('rspec.xml', () => {
   const fixturePath = join(__dirname, 'rspec.xml')
 

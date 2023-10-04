@@ -77,7 +77,7 @@ function assertTestSuite(x: unknown): asserts x is TestSuite {
   assert(x != null)
   if ('testcase' in x) {
     assert(typeof x.testcase === 'undefined' || Array.isArray(x.testcase))
-    for (const testcase of (x.testcase ?? [])) {
+    for (const testcase of x.testcase ?? []) {
       assertTestCase(testcase)
     }
   }
