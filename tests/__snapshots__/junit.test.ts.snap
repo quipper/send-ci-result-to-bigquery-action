@@ -1,5 +1,52 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`empty-testsuite.xml flattenTestCases 1`] = `[]`;
+
+exports[`empty-testsuite.xml parseXML 1`] = `
+{
+  "?xml": {
+    "@_encoding": "UTF-8",
+    "@_version": 1,
+  },
+  "testsuites": {
+    "@_errors": 0,
+    "@_failures": 0,
+    "@_name": "empty test suite",
+    "@_tests": 1,
+    "@_time": 0.865,
+    "testsuite": [
+      {
+        "@_errors": 0,
+        "@_failures": 0,
+        "@_name": "undefined",
+        "@_skipped": 0,
+        "@_tests": 1,
+        "@_time": 0.807,
+        "@_timestamp": "2023-08-04T12:22:11",
+      },
+    ],
+  },
+}
+`;
+
+exports[`empty-testsuites.xml flattenTestCases 1`] = `[]`;
+
+exports[`empty-testsuites.xml parseXML 1`] = `
+{
+  "?xml": {
+    "@_encoding": "UTF-8",
+    "@_version": 1,
+  },
+  "testsuites": {
+    "@_errors": 0,
+    "@_failures": 0,
+    "@_name": "empty testsuites",
+    "@_tests": 1,
+    "@_time": 0.865,
+  },
+}
+`;
+
 exports[`jest.xml flattenTestCases 1`] = `
 [
   {

@@ -23,11 +23,11 @@ export const parseXML = (s: string): TestResult => {
 }
 
 export const flattenTestCases = (xml: TestResult): TestCase[] => {
-  if (xml.testsuites) {
-    return xml.testsuites.testsuite.flatMap((testSuite) => testSuite.testcase)
+  if (xml.testsuites && xml.testsuites.testsuite) {
+    return xml.testsuites.testsuite.flatMap((testSuite) => testSuite.testcase ?? [])
   }
   if (xml.testsuite) {
-    return xml.testsuite.testcase
+    return xml.testsuite.testcase ?? []
   }
   return []
 }
@@ -50,30 +50,36 @@ function assertTestResult(x: unknown): asserts x is TestResult {
 }
 
 type TestSuites = {
-  testsuite: TestSuite[]
+  // <testsuites> has 0 or more <testsuite>.
+  // https://llg.cubic.org/docs/junit/
+  testsuite?: TestSuite[]
 }
 
 function assertTestSuites(x: unknown): asserts x is TestSuites {
   assert(typeof x === 'object')
   assert(x != null)
-  assert('testsuite' in x)
-  assert(Array.isArray(x.testsuite))
-  for (const testsuite of x.testsuite) {
-    assertTestSuite(testsuite)
+  if ('testsuite' in x) {
+    assert(Array.isArray(x.testsuite))
+    for (const testsuite of x.testsuite) {
+      assertTestSuite(testsuite)
+    }
   }
 }
 
 type TestSuite = {
-  testcase: TestCase[]
+  // <testsuite> has 0 or more <testcase>.
+  // https://llg.cubic.org/docs/junit/
+  testcase?: TestCase[]
 }
 
 function assertTestSuite(x: unknown): asserts x is TestSuite {
   assert(typeof x === 'object')
   assert(x != null)
-  assert('testcase' in x)
-  assert(Array.isArray(x.testcase))
-  for (const testcase of x.testcase) {
-    assertTestCase(testcase)
+  if ('testcase' in x) {
+    assert(typeof x.testcase === 'undefined' || Array.isArray(x.testcase))
+    for (const testcase of (x.testcase ?? [])) {
+      assertTestCase(testcase)
+    }
   }
 }
 

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="empty test suite" tests="1" failures="0" errors="0" time="0.865">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2023-08-04T12:22:11" time="0.807" tests="1" />
+</testsuites>
