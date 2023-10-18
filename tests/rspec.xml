@@ -5,7 +5,16 @@
 </properties>
 <testcase classname="spec.features.foo_spec" name="foo" file="./spec/features/foo_spec.rb" time="37.832874"></testcase>
 <testcase classname="spec.features.bar_spec" name="bar" file="./spec/features/bar_spec.rb" time="32.502537"></testcase>
-<testcase classname="spec.features.baz_spec" name="baz" file="./spec/features/baz_spec.rb" time="32.297284">
-<failure message="example" type="spec.features.baz_spec">expected baz</failure>
+
+<testcase classname="spec.features.failure_spec_1" name="baz" file="./spec/features/failure_spec_1.rb" time="32.297284">
+<failure message="example" type="spec.features.failure_spec_1">expected baz</failure>
+</testcase>
+
+<testcase classname="spec.features.failure_spec_2" name="baz" file="./spec/features/failure_spec_2.rb" time="1.470356">
+<failure message="RSpec::Core::MultipleExceptionError" type="RSpec::Core::MultipleExceptionError">
+</testcase>
+
+<testcase classname="spec.features.failure_spec_3" name="baz" file="./spec/features/failure_spec_3.rb" time="1.470356">
+<failure>Something wrong!</failure>
 </testcase>
 </testsuite>
