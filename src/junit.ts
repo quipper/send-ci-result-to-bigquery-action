@@ -89,7 +89,8 @@ export type TestCase = {
   '@_time': number
   '@_file'?: string
   failure?: {
-    '#text': string
+    '#text'?: string
+    '@_message'?: string
   }
 }
 
@@ -110,7 +111,14 @@ export function assertTestCase(x: unknown): asserts x is TestCase {
   if ('failure' in x) {
     assert(typeof x.failure === 'object')
     assert(x.failure != null)
-    assert('#text' in x.failure)
-    assert(typeof x.failure['#text'] === 'string')
+
+    // <failure> element may have a text node or message attribute.
+    // https://github.com/quipper/send-ci-result-to-bigquery-action/issues/100
+    if ('#text' in x.failure) {
+      assert(typeof x.failure['#text'] === 'string')
+    }
+    if ('@_message' in x.failure) {
+      assert(typeof x.failure['@_message'] === 'string')
+    }
   }
 }

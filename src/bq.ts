@@ -16,7 +16,7 @@ export const parseTestResult = (testCases: TestCase[], context: CIResultContext)
     file: testCase['@_file'] ?? '',
     time: truncateTimeToMillis(testCase['@_time']),
     failed: testCase.failure !== undefined,
-    failure_message: testCase.failure?.['#text'],
+    failure_message: testCase.failure?.['@_message'] ?? testCase.failure?.['#text'],
     github_run_id: context.github_run_id,
     github_matrix_context_json: context.github_matrix_context_json,
   }))
