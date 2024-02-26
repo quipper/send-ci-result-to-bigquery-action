@@ -550,10 +550,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.0.tgz#a5417ae8427873f1dd08b70b3574b453e67b5f7f"
   integrity sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==
 
-"@google-cloud/bigquery@7.4.0":
-  version "7.4.0"
-  resolved "https://registry.yarnpkg.com/@google-cloud/bigquery/-/bigquery-7.4.0.tgz#91100f91f2940fca7ffaa584d742289e6f0d7775"
-  integrity sha512-Vfow55GOUC/eeCKB72gDk/fV/D/qa7zuk3w5aXWrNMLV240XNno/JLKtMr/X9t4OFPRtmpMh2byPKsqxERD9YA==
+"@google-cloud/bigquery@7.5.0":
+  version "7.5.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/bigquery/-/bigquery-7.5.0.tgz#7b3281d36b6823b923185cc2b87e391ec83ec87a"
+  integrity sha512-xYMy5WkNNqa9xqlHhOhHDHGCSjFiaN7vGHFV1rkbOFKTc4NilOxYO7BD03nYdClVyWN6qKy/qlmhPkAElb7ETw==
   dependencies:
     "@google-cloud/common" "^5.0.0"
     "@google-cloud/paginator" "^5.0.0"
