@@ -1,5 +1,5 @@
 import * as fs from 'fs/promises'
-import { assertTestCase, flattenTestCases, parseXML } from '../src/junit'
+import { assertTestCase, flattenTestCases, parseXML } from '../src/junit.js'
 import { join } from 'path'
 
 describe('empty-testsuite.xml', () => {

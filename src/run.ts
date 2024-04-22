@@ -1,10 +1,10 @@
 import { BigQuery } from '@google-cloud/bigquery'
-import { parseGitHubContext } from './github'
+import { parseGitHubContext } from './github.js'
 import * as core from '@actions/core'
-import * as bq from './bq'
+import * as bq from './bq.js'
 import * as fs from 'fs/promises'
 import * as glob from '@actions/glob'
-import * as junit from './junit'
+import * as junit from './junit.js'
 
 const BIGQUERY_INSERT_BATCH_SIZE = 100
 
