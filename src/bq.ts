@@ -1,6 +1,6 @@
 import * as bigquery from '@google-cloud/bigquery'
 import * as core from '@actions/core'
-import { TestCase } from './junit'
+import { TestCase } from './junit.js'
 
 type CIResultContext = {
   timestamp: Date
