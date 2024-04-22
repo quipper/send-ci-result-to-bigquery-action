@@ -15,8 +15,8 @@ importers:
         specifier: 0.4.0
         version: 0.4.0
       '@google-cloud/bigquery':
-        specifier: 7.5.2
-        version: 7.5.2
+        specifier: 7.6.0
+        version: 7.6.0
       fast-xml-parser:
         specifier: 4.3.6
         version: 4.3.6
@@ -269,8 +269,8 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@google-cloud/bigquery@7.5.2':
-    resolution: {integrity: sha512-Qa/JxAVC2LGNVVMnYhX8WP8rTSxkMOqqi46nlRn0U3SZIEmS3Am5kj8M/W6Z1WPKWppER3RD9ImGzrXppJN0BQ==}
+  '@google-cloud/bigquery@7.6.0':
+    resolution: {integrity: sha512-Xs8WgPjPSwlv9Q/F0qjy6R5LhfKwrrGDQD4czC1M5z8rQhQiMmn+CdgwhzUleB0Rzcs4oHECiVoqEuZ4PzXMfA==}
     engines: {node: '>=14.0.0'}
 
   '@google-cloud/common@5.0.1':
@@ -2116,7 +2116,7 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@google-cloud/bigquery@7.5.2':
+  '@google-cloud/bigquery@7.6.0':
     dependencies:
       '@google-cloud/common': 5.0.1
       '@google-cloud/paginator': 5.0.0
