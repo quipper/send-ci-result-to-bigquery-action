@@ -15,8 +15,8 @@ importers:
         specifier: 0.4.0
         version: 0.4.0
       '@google-cloud/bigquery':
-        specifier: 7.7.0
-        version: 7.7.0
+        specifier: 7.7.1
+        version: 7.7.1
       fast-xml-parser:
         specifier: 4.3.6
         version: 4.3.6
@@ -269,16 +269,16 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@google-cloud/bigquery@7.7.0':
-    resolution: {integrity: sha512-KK0t7j0RAwqRxt3vc0mtoR+DBSiBmbeJaRv7tAIWlQsyE43pxMu7t94i0kUvR1SKnQBZYX9+iBr+mjdmNORPSQ==}
+  '@google-cloud/bigquery@7.7.1':
+    resolution: {integrity: sha512-SGd4XL/j17L1wT6fVhkjvFhpk6DUEljQtkrKdZPzfaxFTx6GSei5HGtX6yRedSESLK7fwzxZMLcH3uMg2j5jvw==}
     engines: {node: '>=14.0.0'}
 
   '@google-cloud/common@5.0.1':
     resolution: {integrity: sha512-7NBC5vD0au75nkctVs2vEGpdUPFs1BaHTMpeI+RVEgQSMe5/wEU6dx9p0fmZA0bj4HgdpobMKeegOcLUiEoxng==}
     engines: {node: '>=14.0.0'}
 
-  '@google-cloud/paginator@5.0.0':
-    resolution: {integrity: sha512-87aeg6QQcEPxGCOthnpUjvw4xAZ57G7pL8FS0C4e/81fr3FjkpUpibf1s2v5XGyGhUVGF4Jfg7yEcxqn2iUw1w==}
+  '@google-cloud/paginator@5.0.2':
+    resolution: {integrity: sha512-DJS3s0OVH4zFDB1PzjxAsHqJT6sKVbRwwML0ZBP9PbU7Yebtu/7SWMRzvO2J3nUi9pRNITCfu4LJeooM2w4pjg==}
     engines: {node: '>=14.0.0'}
 
   '@google-cloud/precise-date@4.0.0':
@@ -1021,6 +1021,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -1098,6 +1099,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2110,10 +2112,10 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@google-cloud/bigquery@7.7.0':
+  '@google-cloud/bigquery@7.7.1':
     dependencies:
       '@google-cloud/common': 5.0.1
-      '@google-cloud/paginator': 5.0.0
+      '@google-cloud/paginator': 5.0.2
       '@google-cloud/precise-date': 4.0.0
       '@google-cloud/promisify': 4.0.0
       arrify: 2.0.1
@@ -2142,7 +2144,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@google-cloud/paginator@5.0.0':
+  '@google-cloud/paginator@5.0.2':
     dependencies:
       arrify: 2.0.1
       extend: 3.0.2
